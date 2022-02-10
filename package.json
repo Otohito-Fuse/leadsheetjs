@@ -2,6 +2,10 @@
     "name": "leadsheetjs",
     "version": "0.0.1",
     "description": "Parse strings and transform them to information of musical lead sheets.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Otohito-Fuse/leadsheetjs"
+    },
     "main": "build/index.js",
     "module": "build/esm/index.js",
     "types": "build/esm/index.d.ts",
