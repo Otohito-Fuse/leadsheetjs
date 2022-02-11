@@ -21,12 +21,14 @@ export const constructMeasure = (
     let fifths = attributes.key.fifths;
     let flatted: string[] = [];
     let sharped: string[] = [];
-    if (fifths > 0) {
-        flatted = ["B", "E", "A", "D", "G", "C", "F"].slice(0, fifths);
-    }
     if (fifths < 0) {
-        sharped = ["F", "C", "G", "D", "A", "E", "B"].slice(0, -fifths);
+        flatted = ["B", "E", "A", "D", "G", "C", "F"].slice(0, -fifths);
     }
+    if (fifths > 0) {
+        sharped = ["F", "C", "G", "D", "A", "E", "B"].slice(0, fifths);
+    }
+    let doubleflatted: string[] = [];
+    let doublesharped: string[] = [];
 
     let noteHeads: NoteHead[] = [];
     let restSymbols: RestSymbol[] = [];
@@ -36,9 +38,15 @@ export const constructMeasure = (
     let ties: Tie[] = [];
     let accidentals: Accidental[] = [];
 
-    let xFull = lcm(
+    const divisionLcm = lcm(
         noteOrRests.map((noteOrRest: NoteOrRest) => noteOrRest.division)
     );
+    let xFull = 0;
+    for (let [duration, division] of noteOrRests.map(
+        (noteOrRest: NoteOrRest) => [noteOrRest.duration, noteOrRest.division]
+    )) {
+        xFull += (duration * divisionLcm) / division;
+    }
 
     if (clef === trebleClef) {
         let xRelativeTmp = 0;
@@ -108,6 +116,16 @@ export const constructMeasure = (
                     }
                 }
 
+                if (withTieFlag) {
+                    let tie: Tie = {
+                        isStart: false,
+                        xRelative: xRelativeTmp,
+                        xFull,
+                        height,
+                    };
+                    ties.push(tie);
+                    withTieFlag = false;
+                }
                 if (!!noteOrRest.withTie) {
                     let tie: Tie = {
                         isStart: true,
@@ -119,22 +137,14 @@ export const constructMeasure = (
                     ties.push(tie);
                     withTieFlag = true;
                 }
-                if (withTieFlag) {
-                    let tie: Tie = {
-                        isStart: false,
-                        xRelative: xRelativeTmp,
-                        xFull,
-                        height,
-                    };
-                    ties.push(tie);
-                    withTieFlag = false;
-                }
 
                 let alter = !!pitch.alter ? pitch.alter : 0;
                 if (
                     alter === 0 &&
                     (flatted.includes(pitch.step) ||
-                        sharped.includes(pitch.step))
+                        sharped.includes(pitch.step) ||
+                        doubleflatted.includes(pitch.step) ||
+                        doublesharped.includes(pitch.step))
                 ) {
                     let natural: Accidental = {
                         xRelative: xRelativeTmp,
@@ -143,6 +153,14 @@ export const constructMeasure = (
                         kind: "natural",
                     };
                     accidentals.push(natural);
+                    flatted = flatted.filter((s: string) => s !== pitch.step);
+                    doubleflatted = doubleflatted.filter(
+                        (s: string) => s !== pitch.step
+                    );
+                    sharped = sharped.filter((s: string) => s !== pitch.step);
+                    doublesharped = doublesharped.filter(
+                        (s: string) => s !== pitch.step
+                    );
                 }
                 if (alter === 1 && !sharped.includes(pitch.step)) {
                     let sharp: Accidental = {
@@ -152,8 +170,16 @@ export const constructMeasure = (
                         kind: "sharp",
                     };
                     accidentals.push(sharp);
+                    sharped.push(pitch.step);
+                    flatted = flatted.filter((s: string) => s !== pitch.step);
+                    doubleflatted = doubleflatted.filter(
+                        (s: string) => s !== pitch.step
+                    );
+                    doublesharped = doublesharped.filter(
+                        (s: string) => s !== pitch.step
+                    );
                 }
-                if (alter === 2) {
+                if (alter === 2 && !doublesharped.includes(pitch.step)) {
                     let doublesharp: Accidental = {
                         xRelative: xRelativeTmp,
                         xFull,
@@ -161,6 +187,12 @@ export const constructMeasure = (
                         kind: "doublesharp",
                     };
                     accidentals.push(doublesharp);
+                    doublesharped.push(pitch.step);
+                    flatted = flatted.filter((s: string) => s !== pitch.step);
+                    doubleflatted = doubleflatted.filter(
+                        (s: string) => s !== pitch.step
+                    );
+                    sharped = sharped.filter((s: string) => s !== pitch.step);
                 }
                 if (alter === -1 && !flatted.includes(pitch.step)) {
                     let flat: Accidental = {
@@ -170,8 +202,16 @@ export const constructMeasure = (
                         kind: "flat",
                     };
                     accidentals.push(flat);
+                    flatted.push(pitch.step);
+                    doubleflatted = doubleflatted.filter(
+                        (s: string) => s !== pitch.step
+                    );
+                    sharped = sharped.filter((s: string) => s !== pitch.step);
+                    doublesharped = doublesharped.filter(
+                        (s: string) => s !== pitch.step
+                    );
                 }
-                if (alter === -2) {
+                if (alter === -2 && !doubleflatted.includes(pitch.step)) {
                     let doubleflat: Accidental = {
                         xRelative: xRelativeTmp,
                         xFull,
@@ -179,6 +219,12 @@ export const constructMeasure = (
                         kind: "doubleflat",
                     };
                     accidentals.push(doubleflat);
+                    doubleflatted.push(pitch.step);
+                    flatted = flatted.filter((s: string) => s !== pitch.step);
+                    sharped = sharped.filter((s: string) => s !== pitch.step);
+                    doublesharped = doublesharped.filter(
+                        (s: string) => s !== pitch.step
+                    );
                 }
             } else {
                 let restSymbol: RestSymbol = {
@@ -189,7 +235,7 @@ export const constructMeasure = (
                 };
                 restSymbols.push(restSymbol);
             }
-            xRelativeTmp += (duration * xFull) / division;
+            xRelativeTmp += (duration * divisionLcm) / division;
         }
     }
 
