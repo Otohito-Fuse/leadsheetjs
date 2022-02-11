@@ -1,4 +1,4 @@
-import { Pitch, Note, Rest, parseNote } from "../../src";
+import { Pitch, Note, Rest, parseNote, isNote, NoteOrRest } from "../../src";
 
 test("parseNote test null 01", () => {
     let s = "G";
@@ -150,6 +150,60 @@ test("parseNote test note 09", () => {
     expect(t).toStrictEqual(note);
 });
 
+test("parseNote test note 10", () => {
+    let s = "G5:t";
+    let t = parseNote(s);
+    let pitch: Pitch = {
+        step: "G",
+        alter: 0,
+        octave: 4,
+    };
+    let note: Note = {
+        pitch,
+        duration: 1,
+        division: 1,
+        withTie: true,
+        withBeam: false,
+    };
+    expect(t).toStrictEqual(note);
+});
+
+test("parseNote test note 11", () => {
+    let s = "G5:b";
+    let t = parseNote(s);
+    let pitch: Pitch = {
+        step: "G",
+        alter: 0,
+        octave: 4,
+    };
+    let note: Note = {
+        pitch,
+        duration: 1,
+        division: 1,
+        withTie: false,
+        withBeam: true,
+    };
+    expect(t).toStrictEqual(note);
+});
+
+test("parseNote test note 12", () => {
+    let s = "G5:tb";
+    let t = parseNote(s);
+    let pitch: Pitch = {
+        step: "G",
+        alter: 0,
+        octave: 4,
+    };
+    let note: Note = {
+        pitch,
+        duration: 1,
+        division: 1,
+        withTie: true,
+        withBeam: true,
+    };
+    expect(t).toStrictEqual(note);
+});
+
 test("parseNote test rest 01", () => {
     let s = "R4";
     let t = parseNote(s);
@@ -248,4 +302,26 @@ test("parseNote test rest 10", () => {
         division: 1,
     };
     expect(t).toStrictEqual(rest);
+});
+
+test("isNote test 01", () => {
+    let pitch: Pitch = {
+        step: "G",
+        alter: 0,
+        octave: 4,
+    };
+    let note: NoteOrRest = {
+        pitch,
+        duration: 7,
+        division: 1,
+    };
+    expect(isNote(note)).toStrictEqual(true);
+});
+
+test("isNote test 02", () => {
+    let rest: NoteOrRest = {
+        duration: 7,
+        division: 1,
+    };
+    expect(isNote(rest)).toStrictEqual(false);
 });

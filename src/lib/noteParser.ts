@@ -19,9 +19,15 @@ export type Rest = {
     division: number;
 };
 
+export type NoteOrRest = Note | Rest;
+
+export const isNote = (item: NoteOrRest): item is Note => {
+    return !!(item as Note)?.pitch;
+};
+
 export const parseNote = (s: string) => {
     let parsedAsNote = s.match(
-        /^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)$/
+        /^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)(|:[tb]+)$/
     );
     if (!!parsedAsNote) {
         let step = parsedAsNote[1];
@@ -65,6 +71,16 @@ export const parseNote = (s: string) => {
                 duration *= 7;
                 division *= 4;
             }
+        }
+        if (!!parsedAsNote[6]) {
+            let note: Note = {
+                pitch,
+                duration,
+                division,
+                withTie: parsedAsNote[6].includes("t"),
+                withBeam: parsedAsNote[6].includes("b"),
+            };
+            return note;
         }
         let note: Note = {
             pitch,

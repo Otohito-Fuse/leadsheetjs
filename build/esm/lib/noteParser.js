@@ -1,6 +1,9 @@
 import { parseAccidental } from "./accidentalParser";
+export const isNote = (item) => {
+    return !!item?.pitch;
+};
 export const parseNote = (s) => {
-    let parsedAsNote = s.match(/^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)$/);
+    let parsedAsNote = s.match(/^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)(|:[tb]+)$/);
     if (!!parsedAsNote) {
         let step = parsedAsNote[1];
         let accidental = parsedAsNote[2];
@@ -48,6 +51,16 @@ export const parseNote = (s) => {
                 duration *= 7;
                 division *= 4;
             }
+        }
+        if (!!parsedAsNote[6]) {
+            let note = {
+                pitch,
+                duration,
+                division,
+                withTie: parsedAsNote[6].includes("t"),
+                withBeam: parsedAsNote[6].includes("b"),
+            };
+            return note;
         }
         let note = {
             pitch,

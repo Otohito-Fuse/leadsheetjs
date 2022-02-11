@@ -1,6 +1,12 @@
-import { parseNote } from "./lib/noteParser";
+import { parseNote, isNote, } from "./lib/noteParser";
 import { parseChord } from "./lib/chordParser";
 import { parseAccidental } from "./lib/accidentalParser";
-export { parseNote };
+import { lcm, noteValueToKind } from "./lib/utils";
+import { constructMeasure } from "./lib/constructMeasure";
+import { trebleClef, bassClef, } from "./lib/attributes";
+export { parseNote, isNote };
 export { parseChord };
 export { parseAccidental };
+export { lcm, noteValueToKind };
+export { constructMeasure };
+export { trebleClef, bassClef };

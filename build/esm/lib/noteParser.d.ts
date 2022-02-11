@@ -14,5 +14,7 @@ export declare type Rest = {
     duration: number;
     division: number;
 };
+export declare type NoteOrRest = Note | Rest;
+export declare const isNote: (item: NoteOrRest) => item is Note;
 export declare const parseNote: (s: string) => Rest | null;
 //# sourceMappingURL=noteParser.d.ts.map
