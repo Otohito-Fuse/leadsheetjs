@@ -1,3 +1,5 @@
+import { parseAccidental } from "./accidentalParser";
+
 export type Pitch = {
     step: string;
     alter?: number;
@@ -24,12 +26,7 @@ export const parseNote = (s: string) => {
     if (!!parsedAsNote) {
         let step = parsedAsNote[1];
         let accidental = parsedAsNote[2];
-        let alter = 0;
-        if (!!accidental.match(/^#+$/)) {
-            alter += accidental.length;
-        } else if (!!accidental.match(/^b+$/)) {
-            alter -= accidental.length;
-        }
+        let alter = parseAccidental(accidental);
         let octaveUpDown = parsedAsNote[3];
         let octave = 4;
         if (!!octaveUpDown.match(/^\^+$/)) {

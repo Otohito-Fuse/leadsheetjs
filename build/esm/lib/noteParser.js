@@ -1,15 +1,10 @@
+import { parseAccidental } from "./accidentalParser";
 export const parseNote = (s) => {
-    let parsedAsNote = s.match(/^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(3|4|5|6|7)(|.|..)$/);
+    let parsedAsNote = s.match(/^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)$/);
     if (!!parsedAsNote) {
         let step = parsedAsNote[1];
         let accidental = parsedAsNote[2];
-        let alter = 0;
-        if (!!accidental.match(/^#+$/)) {
-            alter += accidental.length;
-        }
-        else if (!!accidental.match(/^b+$/)) {
-            alter -= accidental.length;
-        }
+        let alter = parseAccidental(accidental);
         let octaveUpDown = parsedAsNote[3];
         let octave = 4;
         if (!!octaveUpDown.match(/^\^+$/)) {
@@ -47,7 +42,7 @@ export const parseNote = (s) => {
             }
             else if (duration % 2 === 0) {
                 duration = (duration / 2) * 7;
-                division += 2;
+                division *= 2;
             }
             else {
                 duration *= 7;
@@ -61,10 +56,17 @@ export const parseNote = (s) => {
         };
         return note;
     }
-    let parsedAsRest = s.match(/^R(3|4|5|6|7)(|.|..)$/);
+    let parsedAsRest = s.match(/^R(1|2|3|4|5|6|7)(|.|..)$/);
     if (!!parsedAsRest) {
-        let duration = 4;
-        let division = Math.pow(2, 7 - parseInt(parsedAsRest[1]));
+        let durationNumber = parseInt(parsedAsRest[1]);
+        let duration = 1;
+        let division = 1;
+        if (durationNumber < 5) {
+            division *= Math.pow(2, 5 - durationNumber);
+        }
+        else if (durationNumber > 5) {
+            duration *= Math.pow(2, durationNumber - 5);
+        }
         if (parsedAsRest[2] === ".") {
             if (duration % 2 === 0) {
                 duration = (duration / 2) * 3;
@@ -80,7 +82,7 @@ export const parseNote = (s) => {
             }
             else if (duration % 2 === 0) {
                 duration = (duration / 2) * 7;
-                division += 2;
+                division *= 2;
             }
             else {
                 duration *= 7;

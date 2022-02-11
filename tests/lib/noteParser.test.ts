@@ -1,9 +1,25 @@
 import { Pitch, Note, Rest, parseNote } from "../../src";
 
-test("parseNote test note 01", () => {
+test("parseNote test null 01", () => {
     let s = "G";
     let t = parseNote(s);
     expect(t).toStrictEqual(null);
+});
+
+test("parseNote test note 01", () => {
+    let s = "A4";
+    let t = parseNote(s);
+    let pitch: Pitch = {
+        step: "A",
+        alter: 0,
+        octave: 4,
+    };
+    let note: Note = {
+        pitch,
+        duration: 1,
+        division: 2,
+    };
+    expect(t).toStrictEqual(note);
 });
 
 test("parseNote test note 02", () => {
