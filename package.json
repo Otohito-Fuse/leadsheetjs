@@ -1,6 +1,6 @@
 {
     "name": "leadsheetjs",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Parse strings and transform them to information of musical lead sheets.",
     "repository": {
         "type": "git",
