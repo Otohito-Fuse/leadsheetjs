@@ -19,7 +19,7 @@ export type Rest = {
 
 export const parseNote = (s: string) => {
     let parsedAsNote = s.match(
-        /^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(3|4|5|6|7)(|.|..)$/
+        /^(A|B|C|D|E|F|G)(|#|##|b|bb)(|\^+|_+)(1|2|3|4|5|6|7)(|.|..)$/
     );
     if (!!parsedAsNote) {
         let step = parsedAsNote[1];
@@ -63,7 +63,7 @@ export const parseNote = (s: string) => {
                 duration = (duration / 4) * 7;
             } else if (duration % 2 === 0) {
                 duration = (duration / 2) * 7;
-                division += 2;
+                division *= 2;
             } else {
                 duration *= 7;
                 division *= 4;
@@ -76,10 +76,16 @@ export const parseNote = (s: string) => {
         };
         return note;
     }
-    let parsedAsRest = s.match(/^R(3|4|5|6|7)(|.|..)$/);
+    let parsedAsRest = s.match(/^R(1|2|3|4|5|6|7)(|.|..)$/);
     if (!!parsedAsRest) {
-        let duration = 4;
-        let division = Math.pow(2, 7 - parseInt(parsedAsRest[1]));
+        let durationNumber = parseInt(parsedAsRest[1]);
+        let duration = 1;
+        let division = 1;
+        if (durationNumber < 5) {
+            division *= Math.pow(2, 5 - durationNumber);
+        } else if (durationNumber > 5) {
+            duration *= Math.pow(2, durationNumber - 5);
+        }
         if (parsedAsRest[2] === ".") {
             if (duration % 2 === 0) {
                 duration = (duration / 2) * 3;
@@ -93,7 +99,7 @@ export const parseNote = (s: string) => {
                 duration = (duration / 4) * 7;
             } else if (duration % 2 === 0) {
                 duration = (duration / 2) * 7;
-                division += 2;
+                division *= 2;
             } else {
                 duration *= 7;
                 division *= 4;
