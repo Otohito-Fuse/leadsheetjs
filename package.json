@@ -13,6 +13,14 @@
     "files": [
         "build"
     ],
+    "keywords": [
+        "music",
+        "sheetmusic",
+        "score",
+        "leadsheet",
+        "leadsheetjs",
+        "chord"
+    ],
     "scripts": {
         "test": "jest",
         "build": "run-p build:*",
